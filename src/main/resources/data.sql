@@ -1,0 +1,1 @@
+insert into sensors(id, name, sensor_value, sensor_type) values (6, 'hello', 5.9, 'TEMPERATURE')
