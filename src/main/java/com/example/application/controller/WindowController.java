@@ -1,8 +1,6 @@
 package com.example.application.controller;
 
 import com.example.application.dto.Window;
-import com.example.application.entity.WindowEntity;
-import com.example.application.mapper.WindowMapper;
 import com.example.application.service.WindowService;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,24 +18,22 @@ public class WindowController {
 
     @GetMapping
     public List<Window> findAll() {
-        return windowService.findAll().stream()
-                .map(WindowMapper::of)
-                .toList();
+        return windowService.findAll();
     }
 
     @GetMapping("/{id}")
     public Window findById(@PathVariable Long id) {
-        return windowService.findById(id).map(WindowMapper::of).orElse(null);
+        return windowService.findById(id).orElse(null);
     }
 
     @PostMapping
-    public Window create(@RequestBody WindowEntity windowEntity) {
-        return WindowMapper.of(windowService.create(windowEntity));
+    public Window create(@RequestBody Window window) {
+        return windowService.create(window);
     }
 
     @PutMapping("/{id}")
-    public Window update(@PathVariable Long id, @RequestBody WindowEntity windowEntity) {
-        return WindowMapper.of(windowService.update(id, windowEntity));
+    public Window update(@PathVariable Long id, @RequestBody Window window) {
+        return windowService.update(id, window);
     }
 
     @DeleteMapping("/{id}")

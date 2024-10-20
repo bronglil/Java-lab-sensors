@@ -1,40 +1,62 @@
 package com.example.application.service;
 
+import com.example.application.dto.SensorDto;
 import com.example.application.entity.SensorEntity;
-import com.example.application.entity.SensorType;
+import com.example.application.mapper.SensorMapper;
 import com.example.application.repository.SensorRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class SensorService {
 
-    @Autowired
-    private SensorRepository sensorRepository;
+    private final SensorRepository sensorRepository;
 
-    // Fetch all sensors
-    public List<SensorEntity> findAll() {
-        return sensorRepository.findAll();
+    public SensorService(SensorRepository sensorRepository) {
+        this.sensorRepository = sensorRepository;
     }
 
-    // Fetch sensors by sensor type (e.g., TEMPERATURE, HUMIDITY)
-    public List<SensorEntity> findBySensorType(SensorType sensorType) {
-        return sensorRepository.findBySensorType(sensorType);
+    // Fetch all sensors and convert them to DTOs
+    public List<SensorDto> findAll() {
+        return sensorRepository.findAll().stream()
+                .map(SensorMapper::of)
+                .collect(Collectors.toList());
     }
 
-    // Save a sensor
-    public SensorEntity save(SensorEntity sensorEntity) {
-        return sensorRepository.save(sensorEntity);
+    // Fetch a sensor by ID and convert to DTO
+    public Optional<SensorDto> findById(Long id) {
+        return sensorRepository.findById(id)
+                .map(SensorMapper::of);
     }
 
-    // Delete a sensor by id
+    // Create a new sensor from DTO
+    public SensorDto create(SensorDto dto) {
+        SensorEntity sensorEntity = SensorMapper.toEntity(dto);
+        SensorEntity savedEntity = sensorRepository.save(sensorEntity);
+        return SensorMapper.of(savedEntity);
+    }
+
+    // Update an existing sensor
+    public SensorDto update(Long id, SensorDto dto) {
+        Optional<SensorEntity> existingSensorOpt = sensorRepository.findById(id);
+
+        if (existingSensorOpt.isPresent()) {
+            SensorEntity sensorEntity = existingSensorOpt.get();
+            sensorEntity.setName(dto.name());
+            sensorEntity.setValue(dto.value());
+            sensorEntity.setSensorType(dto.sensorType());
+
+            SensorEntity updatedEntity = sensorRepository.save(sensorEntity);
+            return SensorMapper.of(updatedEntity);
+        } else {
+            throw new IllegalArgumentException("Sensor not found");
+        }
+    }
+
     public void deleteById(Long id) {
         sensorRepository.deleteById(id);
-    }
-
-    public SensorEntity findById(Long id) {
-        return sensorRepository.findById(id).orElse(null);
     }
 }

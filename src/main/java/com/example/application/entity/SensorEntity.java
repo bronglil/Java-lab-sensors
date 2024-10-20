@@ -13,23 +13,20 @@ public class SensorEntity {
     @Column(nullable = false)
     private String name;
 
-    @Column(name = "sensor_value", nullable = false) // Use a different name for the database column
-    private Double sensor_value;
+    @Column(name = "sensor_value", nullable = false)
+    private Double value;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private SensorType sensorType;
+    @Column(name = "sensor_type", nullable = false)
+    private String sensorType;
 
-    // Constructors
-    public SensorEntity() {}
-
-    public SensorEntity(String name, Double value, SensorType sensorType) {
-        this.name = name;
-        this.sensor_value = value;
-        this.sensorType = sensorType;
+    public SensorType getSensorType() {
+        return SensorType.valueOf(sensorType);
     }
 
-    // Getters and setters
+    public void setSensorType(SensorType sensorType) {
+        this.sensorType = sensorType.name();
+    }
+
     public Long getId() {
         return id;
     }
@@ -47,18 +44,10 @@ public class SensorEntity {
     }
 
     public Double getValue() {
-        return sensor_value;
+        return value;
     }
 
     public void setValue(Double value) {
-        this.sensor_value = value;
-    }
-
-    public SensorType getSensorType() {
-        return sensorType;
-    }
-
-    public void setSensorType(SensorType sensorType) {
-        this.sensorType = sensorType;
+        this.value = value;
     }
 }

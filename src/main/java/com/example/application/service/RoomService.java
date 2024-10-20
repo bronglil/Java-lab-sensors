@@ -33,10 +33,9 @@ public class RoomService {
         if (existingRoom.isPresent()) {
             RoomEntity roomEntity = existingRoom.get();
             roomEntity.setName(updatedRoomEntity.getName());
-            // Update other properties as needed
             return roomRepository.save(roomEntity);
         } else {
-            return null;  // Or throw a RoomNotFoundException
+            return null;
         }
     }
 

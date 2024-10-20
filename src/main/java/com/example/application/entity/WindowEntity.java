@@ -20,15 +20,6 @@ public class WindowEntity {
     @JoinColumn(name = "room_id")
     private RoomEntity room;
 
-    // Constructors
-    public WindowEntity() {}
-
-    public WindowEntity(String name, WindowStatus windowStatus, RoomEntity room) {
-        this.name = name;
-        this.windowStatus = windowStatus;
-        this.room = room;
-    }
-
     // Getters and Setters
     public Long getId() {
         return id;

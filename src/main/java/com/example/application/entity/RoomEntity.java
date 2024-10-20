@@ -17,7 +17,6 @@ public class RoomEntity {
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL)
     private Set<WindowEntity> windows;
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }

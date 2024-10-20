@@ -1,9 +1,7 @@
 package com.example.application.controller;
 
 import com.example.application.dto.SensorDto;
-import com.example.application.entity.SensorEntity;
-import com.example.application.mapper.SensorMapper;
-import com.example.application.repository.SensorRepository;
+import com.example.application.service.SensorService;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,31 +10,34 @@ import java.util.List;
 @RequestMapping("/api/sensors")
 public class SensorController {
 
-    private final SensorRepository sensorRepository;
+    private final SensorService sensorService;
 
-    public SensorController(SensorRepository sensorRepository) {
-        this.sensorRepository = sensorRepository;
+    public SensorController(SensorService sensorService) {
+        this.sensorService = sensorService;
     }
 
     @GetMapping
-    public List<SensorEntity> findAll() {
-        List<SensorEntity> sensors = sensorRepository.findAll();
-        sensors.forEach(sensor -> System.out.println("Fetched sensor: " + sensor.getName()));
-        return sensors;
-    }
-
-    @PostMapping
-    public SensorDto create(@RequestBody SensorEntity sensorEntity) {
-        return SensorMapper.of(sensorRepository.save(sensorEntity));
+    public List<SensorDto> findAll() {
+        return sensorService.findAll();
     }
 
     @GetMapping("/{id}")
-    public SensorEntity findById(@PathVariable Long id) {
-        return sensorRepository.findById(id).orElse(null);
+    public SensorDto findById(@PathVariable Long id) {
+        return sensorService.findById(id).orElse(null);
+    }
+
+    @PostMapping
+    public SensorDto create(@RequestBody SensorDto sensorDto) {
+        return sensorService.create(sensorDto);
+    }
+
+    @PutMapping("/{id}")
+    public SensorDto update(@PathVariable Long id, @RequestBody SensorDto sensorDto) {
+        return sensorService.update(id, sensorDto);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteById(@PathVariable Long id) {
-        sensorRepository.deleteById(id);
+    public void delete(@PathVariable Long id) {
+        sensorService.deleteById(id);
     }
 }

@@ -1,51 +1,66 @@
 package com.example.application.service;
 
+import com.example.application.dto.Window;
+import com.example.application.entity.RoomEntity;
 import com.example.application.entity.WindowEntity;
+import com.example.application.mapper.WindowMapper;
 import com.example.application.repository.WindowRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class WindowService {
 
     private final WindowRepository windowRepository;
+    private final RoomService roomService;
 
-    public WindowService(WindowRepository windowRepository) {
+    public WindowService(WindowRepository windowRepository, RoomService roomService) {
         this.windowRepository = windowRepository;
+        this.roomService = roomService;
     }
 
-    // Get all windows
-    public List<WindowEntity> findAll() {
-        return windowRepository.findAll();
+    // Fetch all windows and convert them to DTOs
+    public List<Window> findAll() {
+        return windowRepository.findAll().stream()
+                .map(WindowMapper::of)
+                .collect(Collectors.toList());
     }
 
-    // Get a window by ID
-    public Optional<WindowEntity> findById(Long id) {
-        return windowRepository.findById(id);
+    // Fetch a window by ID and convert to DTO
+    public Optional<Window> findById(Long id) {
+        return windowRepository.findById(id)
+                .map(WindowMapper::of);
     }
 
-    // Create a new window
-    public WindowEntity create(WindowEntity windowEntity) {
-        return windowRepository.save(windowEntity);
+    // Create a new window from DTO
+    public Window create(Window dto) {
+        RoomEntity roomEntity = roomService.findById(dto.roomId()).orElseThrow(() -> new IllegalArgumentException("Room not found"));
+        WindowEntity windowEntity = WindowMapper.toEntity(dto, roomEntity);
+        WindowEntity savedEntity = windowRepository.save(windowEntity);
+        return WindowMapper.of(savedEntity);
     }
 
-    // Update an existing window by ID
-    public WindowEntity update(Long id, WindowEntity updatedWindowEntity) {
+    // Update an existing window
+    public Window update(Long id, Window dto) {
+        RoomEntity roomEntity = roomService.findById(dto.roomId()).orElseThrow(() -> new IllegalArgumentException("Room not found"));
         Optional<WindowEntity> existingWindowOpt = windowRepository.findById(id);
 
         if (existingWindowOpt.isPresent()) {
-            WindowEntity existingWindow = existingWindowOpt.get();
-            existingWindow.setName(updatedWindowEntity.getName());
-            // Add more fields to update as necessary
-            return windowRepository.save(existingWindow); // Save the updated window entity
+            WindowEntity windowEntity = existingWindowOpt.get();
+            windowEntity.setName(dto.name());
+            windowEntity.setWindowStatus(dto.windowStatus());
+            windowEntity.setRoom(roomEntity);
+
+            WindowEntity updatedEntity = windowRepository.save(windowEntity);
+            return WindowMapper.of(updatedEntity);
         } else {
-            return null; // Handle case where window is not found, e.g., throw an exception
+            throw new IllegalArgumentException("Window not found");
         }
     }
 
-    // Delete a window by ID
     public void deleteWindow(Long id) {
         windowRepository.deleteById(id);
     }
