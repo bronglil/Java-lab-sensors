@@ -1,4 +1,5 @@
-**Window API Details**:
+**Window API Details**
+
 ``/api/windows/{id} (GET)``
 Payload: Fetch a window by its id.
 Entity: Returns a Window object with id, name, windowStatus (OPEN, CLOSED, LOCKED), and roomId.
