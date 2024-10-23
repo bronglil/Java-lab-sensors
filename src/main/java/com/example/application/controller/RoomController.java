@@ -4,6 +4,8 @@ import com.example.application.dto.Room;
 import com.example.application.entity.RoomEntity;
 import com.example.application.mapper.RoomMapper;
 import com.example.application.service.RoomService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,8 +28,10 @@ public class RoomController {
     }
 
     @GetMapping("/{id}")
-    public Room findById(@PathVariable Long id) {
-        return roomService.findById(id).map(RoomMapper::of).orElse(null);
+    public ResponseEntity<Room> findById(@PathVariable Long id) {
+        return roomService.findById(id)
+                .map(room -> new ResponseEntity<>(RoomMapper.of(room), HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @PostMapping

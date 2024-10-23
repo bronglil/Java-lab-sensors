@@ -32,10 +32,15 @@ class RoomControllerTest {
 
     @Test
     void shouldFindAllRooms() throws Exception {
-        Room room1 = new Room(1L, "Room 1", List.of());
-        Room room2 = new Room(2L, "Room 2", List.of());
+        RoomEntity room1 = new RoomEntity();
+        room1.setId(1L);
+        room1.setName("Room 1");
 
-        Mockito.when(roomService.findAll()).thenReturn(List.of(new RoomEntity(), new RoomEntity()));
+        RoomEntity room2 = new RoomEntity();
+        room2.setId(2L);
+        room2.setName("Room 2");
+
+        Mockito.when(roomService.findAll()).thenReturn(List.of(room1, room2));
 
         mockMvc.perform(get("/api/rooms").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -43,13 +48,18 @@ class RoomControllerTest {
                 .andExpect(jsonPath("[1].name").value("Room 2"));
     }
 
+
     @Test
     void shouldFindRoomById() throws Exception {
-        Room roomDto = new Room(1L, "Room 1", List.of());
-        Mockito.when(roomService.findById(1L)).thenReturn(Optional.of(new RoomEntity()));
+        RoomEntity roomEntity = new RoomEntity();
+        roomEntity.setId(1L);
+        roomEntity.setName("Room 1");
+
+        Mockito.when(roomService.findById(1L)).thenReturn(Optional.of(roomEntity));
 
         mockMvc.perform(get("/api/rooms/1").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.name").value("Room 1"));
     }
 
@@ -64,14 +74,14 @@ class RoomControllerTest {
     @Test
     void shouldCreateRoom() throws Exception {
         RoomEntity roomEntity = new RoomEntity();
-        Room roomDto = new Room(null, "Room 1", List.of());
-        Room savedRoom = new Room(1L, "Room 1", List.of());
+        roomEntity.setId(1L);
+        roomEntity.setName("Room 1");
 
         Mockito.when(roomService.create(Mockito.any())).thenReturn(roomEntity);
 
         mockMvc.perform(post("/api/rooms")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(roomDto)))
+                        .content(objectMapper.writeValueAsString(new Room(null, "Room 1", List.of()))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.name").value("Room 1"));
@@ -80,12 +90,14 @@ class RoomControllerTest {
     @Test
     void shouldUpdateRoom() throws Exception {
         RoomEntity roomEntity = new RoomEntity();
-        Room updatedRoom = new Room(1L, "Updated Room", List.of());
+        roomEntity.setId(1L);
+        roomEntity.setName("Updated Room");
+
         Mockito.when(roomService.update(Mockito.anyLong(), Mockito.any())).thenReturn(roomEntity);
 
         mockMvc.perform(put("/api/rooms/1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updatedRoom)))
+                        .content(objectMapper.writeValueAsString(new Room(1L, "Updated Room", List.of()))))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.name").value("Updated Room"));
