@@ -1,4 +1,4 @@
-** Assignment Lab **
+*Assignment Lab*
 
 **Window API Details**
 
